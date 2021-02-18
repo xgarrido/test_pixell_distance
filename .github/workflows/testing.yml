@@ -34,4 +34,4 @@ jobs:
 
     - name: Unit tests
       run: |
-        python -m unitest test_distance
+        python -m unittest test_distance
