@@ -10,7 +10,8 @@ def generate_distance_healpix():
     m = np.ones(12 * nside ** 2)
     m[6 * nside ** 2] = 0.0
     dist = enmap.distance_transform_healpix(m)
-    return np.asarray(dist)
+    m[dist * 60 * 180 / np.pi < 5] = 0.0
+    return np.asarray(m)
 
 
 def generate_distance_car():
@@ -18,7 +19,8 @@ def generate_distance_car():
     m = enmap.ones(shape=shape, wcs=wcs)
     m[250, 250] = 0.0
     dist = enmap.distance_transform(m)
-    return np.asarray(dist)
+    m[dist * 60 * 180 / np.pi < 5] = 0.0
+    return np.asarray(m)
 
 
 def store_data():
