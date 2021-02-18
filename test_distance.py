@@ -5,13 +5,13 @@ import healpy as hp
 import numpy as np
 from pixell import enmap, utils
 
-nholes = 100
-hole_radius_arcmin = 10
+nholes = 10
+hole_radius_arcmin = 20
 apo_radius_degree = 1
 
 
 def generate_distance_healpix():
-    np.random.seed(1234)
+    np.random.seed(14)
     nside = 256
     m = np.ones(12 * nside ** 2)
     idx = np.arange(12 * nside ** 2)
@@ -23,21 +23,22 @@ def generate_distance_healpix():
     idx = np.where(dist > apo_radius_degree)
     m = 1 / 2 * (1 - np.cos(-np.pi * dist / apo_radius_degree))
     m[idx] = 1.0
-    return np.asarray(m)[:1000]
+    return np.asarray(m)
 
 
 def generate_distance_car():
-    np.random.seed(1234)
-    shape, wcs = enmap.fullsky_geometry(res=10 * utils.arcmin, proj="car")
+    np.random.seed(14)
+    box = np.array([[-25, 25], [25, -25]]) * utils.degree
+    shape, wcs = enmap.geometry(pos=box, res=5 * utils.arcmin, proj="car")
     m = enmap.ones(shape=shape, wcs=wcs)
     idx1 = np.random.randint(0, shape[0], nholes)
     idx2 = np.random.randint(0, shape[1], nholes)
     m[idx1, idx2] = 0.0
-    dist = enmap.distance_transform(m)
+    dist = enmap.distance_transform(m) * 180 / np.pi
     idx = np.where(dist > apo_radius_degree)
     m = 1 / 2 * (1 - np.cos(-np.pi * dist / apo_radius_degree))
     m[idx] = 1.0
-    return np.asarray(m)[:500, :500]
+    return np.asarray(m)
 
 
 def store_data():
