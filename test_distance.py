@@ -1,23 +1,32 @@
 import pickle
 import unittest
 
+import healpy as hp
 import numpy as np
 from pixell import enmap, utils
 
 
 def generate_distance_healpix():
+    np.random.seed(1234)
     nside = 128
     m = np.ones(12 * nside ** 2)
-    m[6 * nside ** 2] = 0.0
+    idx = np.arange(12 * nside ** 2)
+    for i in range(100):
+        vec = hp.pix2vec(nside, np.random.choice(idx))
+        disc = hp.query_disc(nside, vec, 5 / (60.0 * 180) * np.pi)
+        m[disc] = 0.0
     dist = enmap.distance_transform_healpix(m)
     m[dist * 60 * 180 / np.pi < 5] = 0.0
     return np.asarray(m)
 
 
 def generate_distance_car():
+    np.random.seed(1234)
     shape, wcs = enmap.fullsky_geometry(res=20 * utils.arcmin, proj="car")
     m = enmap.ones(shape=shape, wcs=wcs)
-    m[250, 250] = 0.0
+    idx1 = np.random.randint(0, shape[0], 100)
+    idx2 = np.random.randint(0, shape[1], 100)
+    m[idx1, idx2] = 0.0
     dist = enmap.distance_transform(m)
     m[dist * 60 * 180 / np.pi < 5] = 0.0
     return np.asarray(m)
