@@ -59,12 +59,13 @@ def generate_window_car():
 
 def generate_window_healpix():
     np.random.seed(seed)
-    binary = so_map.healpix_template(ncomp=1, nside=nside)
+    # binary = so_map.healpix_template(ncomp=1, nside=nside)
+    binary = np.zeros(12 * nside ** 2)
     vec = hp.ang2vec(30, 50, lonlat=True)
     disc = hp.query_disc(nside, vec, radius=25 * np.pi / 180)
-    binary.data[disc] = 1
+    binary[disc] = 1
     dist = binary.copy()
-    dist.data = enmap.distance_transform_healpix(binary.data, method="heap", rmax=None)
+    dist = enmap.distance_transform_healpix(binary, method="heap", rmax=None)
     # dist = so_window.get_distance(binary)
     # window = so_window.create_apodization(binary, apo_type="C1", apo_radius_degree=1)
     # mask = so_map.simulate_source_mask(
@@ -73,7 +74,7 @@ def generate_window_healpix():
     # mask = so_window.create_apodization(mask, apo_type="C1", apo_radius_degree=apo_radius_degree)
     # window.data *= mask.data
     # return np.asarray(window.data)
-    return np.asarray(dist.data)
+    return np.asarray(dist)
 
 
 def store_data():
