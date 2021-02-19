@@ -61,7 +61,7 @@ def generate_window_healpix():
     np.random.seed(seed)
     binary = so_map.healpix_template(ncomp=1, nside=nside)
     vec = hp.ang2vec(30, 50, lonlat=True)
-    disc = hp.query_disc(nside, vec, radius=15 * np.pi / 180)
+    disc = hp.query_disc(nside, vec, radius=25 * np.pi / 180)
     binary.data[disc] = 1
     window = so_window.create_apodization(binary, apo_type="C1", apo_radius_degree=1)
     # mask = so_map.simulate_source_mask(
