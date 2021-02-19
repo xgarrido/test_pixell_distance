@@ -4,6 +4,7 @@ import unittest
 import healpy as hp
 import numpy as np
 from pixell import enmap, utils
+from pspy import so_map, so_window
 
 nholes = 10
 hole_radius_arcmin = 20
@@ -41,9 +42,25 @@ def generate_distance_car():
     return np.asarray(m)
 
 
+def generate_window_car():
+    binary = so_map.car_template(ncomp=1, res=5, ra0=-25, ra1=+25, dec0=-25, dec1=+25)
+    binary.data[:] = 0
+    binary.data[1:-1, 1:-1] = 1
+    window = so_window.create_apodization(binary, apo_type="Rectangle", apo_radius_degree=1)
+    mask = so_map.simulate_source_mask(
+        binary, n_holes=nholes, hole_radius_arcmin=hole_radius_arcmin
+    )
+    mask = so_window.create_apodization(mask, apo_type="C1", apo_radius_degree=apo_radius_degree)
+    window.data *= mask.data
+    return np.asarray(window.data)
+
+
 def store_data():
     d = {"car": generate_distance_car(), "healpix": generate_distance_healpix()}
     with open("./data/distances.pkl", "wb") as f:
+        pickle.dump(d, f)
+    d = {"car": generate_window_car()}  # , "healpix": generate_distance_healpix()}
+    with open("./data/windows.pkl", "wb") as f:
         pickle.dump(d, f)
 
 
@@ -51,12 +68,20 @@ class DistanceTest(unittest.TestCase):
     def setUp(self):
         with open("data/distances.pkl", "rb") as f:
             self.ref = pickle.load(f)
+        with open("data/windows.pkl", "rb") as f:
+            self.window = pickle.load(f)
 
     def test_distance_healpix(self):
         np.testing.assert_almost_equal(self.ref["healpix"], generate_distance_healpix(), decimal=7)
 
     def test_distance_car(self):
         np.testing.assert_almost_equal(self.ref["car"], generate_distance_car(), decimal=7)
+
+    # def test_distance_healpix(self):
+    #     np.testing.assert_almost_equal(self.ref["healpix"], generate_distance_healpix(), decimal=7)
+
+    def test_window_car(self):
+        np.testing.assert_almost_equal(self.window["car"], generate_window_car(), decimal=7)
 
 
 if __name__ == "__main__":
