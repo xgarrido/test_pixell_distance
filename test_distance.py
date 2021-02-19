@@ -64,7 +64,6 @@ def generate_window_healpix():
     disc = hp.query_disc(nside, vec, radius=25 * np.pi / 180)
     binary.data[disc] = 1
     dist = binary.copy()
-    dist.data = dist.data.astype(float)
     dist.data[:] = enmap.distance_transform_healpix(binary.data, method="heap", rmax=None)
     # dist = so_window.get_distance(binary)
     # window = so_window.create_apodization(binary, apo_type="C1", apo_radius_degree=1)
