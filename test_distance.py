@@ -76,7 +76,8 @@ def store_data():
     d = {"car": generate_distance_car(), "healpix": generate_distance_healpix()}
     with open("./data/distances.pkl", "wb") as f:
         pickle.dump(d, f)
-    d = {"car": generate_window_car(), "healpix": generate_window_healpix()}
+    # d = {"car": generate_window_car(), "healpix": generate_window_healpix()}
+    d = {"healpix": generate_window_healpix()}
     with open("./data/windows.pkl", "wb") as f:
         pickle.dump(d, f)
 
@@ -97,8 +98,8 @@ class DistanceTest(unittest.TestCase):
     def test_window_healpix(self):
         np.testing.assert_almost_equal(self.window["healpix"], generate_window_healpix(), decimal=7)
 
-    def test_window_car(self):
-        np.testing.assert_almost_equal(self.window["car"], generate_window_car(), decimal=7)
+    # def test_window_car(self):
+    #     np.testing.assert_almost_equal(self.window["car"], generate_window_car(), decimal=7)
 
 
 if __name__ == "__main__":
