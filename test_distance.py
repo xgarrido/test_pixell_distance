@@ -85,14 +85,16 @@ def store_data():
     d = {"healpix": generate_window_healpix()}
     with open("./data/windows.pkl", "wb") as f:
         pickle.dump(d, f)
+    np.save("./data/windows", generate_window_healpix(), allow_pickle=False)
 
 
 class DistanceTest(unittest.TestCase):
     def setUp(self):
         with open("data/distances.pkl", "rb") as f:
             self.ref = pickle.load(f)
-        with open("data/windows.pkl", "rb") as f:
-            self.window = pickle.load(f)
+        # with open("data/windows.pkl", "rb") as f:
+        #     self.window = pickle.load(f)
+        self.window = {"healpix": np.load("./data/windows.npy")}
 
     # def test_distance_healpix(self):
     #     np.testing.assert_almost_equal(self.ref["healpix"], generate_distance_healpix(), decimal=7)
