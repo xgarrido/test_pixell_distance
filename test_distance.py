@@ -44,6 +44,7 @@ def generate_distance_car():
 
 
 def generate_window_car():
+    np.random.seed(seed)
     binary = so_map.car_template(ncomp=1, res=5, ra0=-25, ra1=+25, dec0=-25, dec1=+25)
     binary.data[:] = 0
     binary.data[1:-1, 1:-1] = 1
@@ -57,6 +58,7 @@ def generate_window_car():
 
 
 def generate_window_healpix():
+    np.random.seed(seed)
     binary = so_map.healpix_template(ncomp=1, nside=nside)
     vec = hp.ang2vec(30, 50, lonlat=True)
     disc = hp.query_disc(nside, vec, radius=15 * np.pi / 180)
