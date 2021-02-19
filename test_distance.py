@@ -63,13 +63,14 @@ def generate_window_healpix():
     vec = hp.ang2vec(30, 50, lonlat=True)
     disc = hp.query_disc(nside, vec, radius=15 * np.pi / 180)
     binary.data[disc] = 1
-    window = so_window.create_apodization(binary, apo_type="C1", apo_radius_degree=1)
-    mask = so_map.simulate_source_mask(
-        binary, n_holes=nholes, hole_radius_arcmin=hole_radius_arcmin
-    )
-    mask = so_window.create_apodization(mask, apo_type="C1", apo_radius_degree=apo_radius_degree)
-    window.data *= mask.data
-    return np.asarray(window.data)
+    # window = so_window.create_apodization(binary, apo_type="C1", apo_radius_degree=1)
+    # mask = so_map.simulate_source_mask(
+    #     binary, n_holes=nholes, hole_radius_arcmin=hole_radius_arcmin
+    # )
+    # mask = so_window.create_apodization(mask, apo_type="C1", apo_radius_degree=apo_radius_degree)
+    # window.data *= mask.data
+    # return np.asarray(window.data)
+    return np.asarray(binary.data)
 
 
 def store_data():
