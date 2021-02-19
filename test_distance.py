@@ -6,14 +6,15 @@ import numpy as np
 from pixell import enmap, utils
 from pspy import so_map, so_window
 
+seed = 14
 nholes = 10
 hole_radius_arcmin = 20
 apo_radius_degree = 1
+nside = 256
 
 
 def generate_distance_healpix():
-    np.random.seed(14)
-    nside = 256
+    np.random.seed(seed)
     m = np.ones(12 * nside ** 2)
     idx = np.arange(12 * nside ** 2)
     for i in range(nholes):
@@ -28,7 +29,7 @@ def generate_distance_healpix():
 
 
 def generate_distance_car():
-    np.random.seed(14)
+    np.random.seed(seed)
     box = np.array([[-25, 25], [25, -25]]) * utils.degree
     shape, wcs = enmap.geometry(pos=box, res=5 * utils.arcmin, proj="car")
     m = enmap.ones(shape=shape, wcs=wcs)
@@ -55,11 +56,25 @@ def generate_window_car():
     return np.asarray(window.data)
 
 
+def generate_window_healpix():
+    binary = so_map.healpix_template(ncomp=1, nside=nside)
+    vec = hp.ang2vec(30, 50, lonlat=True)
+    disc = hp.query_disc(nside, vec, radius=15 * np.pi / 180)
+    binary.data[disc] = 1
+    window = so_window.create_apodization(binary, apo_type="C1", apo_radius_degree=1)
+    mask = so_map.simulate_source_mask(
+        binary, n_holes=nholes, hole_radius_arcmin=hole_radius_arcmin
+    )
+    mask = so_window.create_apodization(mask, apo_type="C1", apo_radius_degree=apo_radius_degree)
+    window.data *= mask.data
+    return np.asarray(window.data)
+
+
 def store_data():
     d = {"car": generate_distance_car(), "healpix": generate_distance_healpix()}
     with open("./data/distances.pkl", "wb") as f:
         pickle.dump(d, f)
-    d = {"car": generate_window_car()}  # , "healpix": generate_distance_healpix()}
+    d = {"car": generate_window_car(), "healpix": generate_window_healpix()}
     with open("./data/windows.pkl", "wb") as f:
         pickle.dump(d, f)
 
@@ -77,8 +92,8 @@ class DistanceTest(unittest.TestCase):
     def test_distance_car(self):
         np.testing.assert_almost_equal(self.ref["car"], generate_distance_car(), decimal=7)
 
-    # def test_distance_healpix(self):
-    #     np.testing.assert_almost_equal(self.ref["healpix"], generate_distance_healpix(), decimal=7)
+    def test_window_healpix(self):
+        np.testing.assert_almost_equal(self.window["healpix"], generate_window_healpix(), decimal=7)
 
     def test_window_car(self):
         np.testing.assert_almost_equal(self.window["car"], generate_window_car(), decimal=7)
