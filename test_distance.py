@@ -63,13 +63,15 @@ def generate_window_healpix():
     vec = hp.ang2vec(30, 50, lonlat=True)
     disc = hp.query_disc(nside, vec, radius=25 * np.pi / 180)
     binary.data[disc] = 1
-    window = so_window.create_apodization(binary, apo_type="C1", apo_radius_degree=1)
+    dist = so_window.get_distance(binary)
+    # window = so_window.create_apodization(binary, apo_type="C1", apo_radius_degree=1)
     # mask = so_map.simulate_source_mask(
     #     binary, n_holes=nholes, hole_radius_arcmin=hole_radius_arcmin
     # )
     # mask = so_window.create_apodization(mask, apo_type="C1", apo_radius_degree=apo_radius_degree)
     # window.data *= mask.data
-    return np.asarray(window.data)
+    # return np.asarray(window.data)
+    return np.asarray(dist.data)
 
 
 def store_data():
@@ -89,11 +91,11 @@ class DistanceTest(unittest.TestCase):
         with open("data/windows.pkl", "rb") as f:
             self.window = pickle.load(f)
 
-    def test_distance_healpix(self):
-        np.testing.assert_almost_equal(self.ref["healpix"], generate_distance_healpix(), decimal=7)
+    # def test_distance_healpix(self):
+    #     np.testing.assert_almost_equal(self.ref["healpix"], generate_distance_healpix(), decimal=7)
 
-    def test_distance_car(self):
-        np.testing.assert_almost_equal(self.ref["car"], generate_distance_car(), decimal=7)
+    # def test_distance_car(self):
+    #     np.testing.assert_almost_equal(self.ref["car"], generate_distance_car(), decimal=7)
 
     def test_window_healpix(self):
         np.testing.assert_almost_equal(self.window["healpix"], generate_window_healpix(), decimal=7)
